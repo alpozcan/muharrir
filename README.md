@@ -4,28 +4,20 @@
     <em>Türkçe teknik makale yazım denetleyicisi — yerel LLM + RAG ile.</em>
   </p>
   <p align="center">
-    <a href="https://github.com/alpozcan/muharrir/releases"><img src="https://img.shields.io/github/v/release/alpozcan/muharrir?style=flat-square&label=version" alt="Release"></a>
-    <a href="https://github.com/apple/swift-package-manager"><img src="https://img.shields.io/badge/SPM-compatible-orange?style=flat-square" alt="Swift Package Manager"></a>
-    <a href="https://github.com/yonaskolb/Mint"><img src="https://img.shields.io/badge/Mint-compatible-brightgreen?style=flat-square" alt="Mint"></a>
-    <a href="https://github.com/alpozcan/homebrew-muharrir"><img src="https://img.shields.io/badge/Homebrew-tap-yellow?style=flat-square&logo=homebrew" alt="Homebrew"></a>
+    <a href="https://github.com/alpozcan/muharrir/releases"><img src="https://img.shields.io/github/v/release/alpozcan/muharrir?style=flat-square&label=sürüm" alt="Sürüm"></a>
+    <a href="https://github.com/apple/swift-package-manager"><img src="https://img.shields.io/badge/SPM-uyumlu-orange?style=flat-square" alt="Swift Package Manager"></a>
+    <a href="https://github.com/yonaskolb/Mint"><img src="https://img.shields.io/badge/Mint-uyumlu-brightgreen?style=flat-square" alt="Mint"></a>
     <a href="https://swift.org"><img src="https://img.shields.io/badge/Swift-6.0+-F05138?style=flat-square&logo=swift&logoColor=white" alt="Swift 6.0+"></a>
     <a href="https://github.com/alpozcan/muharrir/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/alpozcan/muharrir/ci.yml?style=flat-square&label=CI" alt="CI"></a>
-    <a href="https://github.com/alpozcan/muharrir/blob/main/LICENSE"><img src="https://img.shields.io/github/license/alpozcan/muharrir?style=flat-square" alt="License"></a>
+    <a href="https://github.com/alpozcan/muharrir/blob/main/LICENSE"><img src="https://img.shields.io/github/license/alpozcan/muharrir?style=flat-square" alt="Lisans"></a>
   </p>
 </p>
 
 ---
 
-Muharrir, Türkçe teknik makalelerin dilini ve ifade biçimini yerel LLM (Ollama) ve RAG (Retrieval-Augmented Generation) kullanarak denetler ve iyileştirme önerileri sunar. Verileriniz makinenizden çıkmaz.
+Muharrir, Türkçe teknik makalelerin dilini ve ifade biçimini yerel bir LLM ([Ollama](https://ollama.ai)) ve RAG (Retrieval-Augmented Generation) kullanarak denetler, iyileştirme önerileri sunar. Tüm verileriniz makinenizde kalır; dışarıya hiçbir veri çıkmaz.
 
 ## Kurulum
-
-### Homebrew
-
-```bash
-brew tap alpozcan/muharrir
-brew install muharrir
-```
 
 ### Mint
 
@@ -33,7 +25,7 @@ brew install muharrir
 mint install alpozcan/muharrir
 ```
 
-### Swift Package Manager (kaynak koddan derleme)
+### Kaynaktan Derleme (Swift Package Manager)
 
 ```bash
 git clone https://github.com/alpozcan/muharrir.git
@@ -44,33 +36,33 @@ cp .build/release/muharrir /usr/local/bin/
 
 ### Gereksinimler
 
-Muharrir, [Ollama](https://ollama.ai)'nın yerel olarak çalışmasını gerektirir:
+Muharrir'in çalışması için [Ollama](https://ollama.ai)'nın yerel olarak kurulu ve çalışır durumda olması gerekir:
 
 ```bash
 brew install ollama
 brew services start ollama
-ollama pull gemma3:4b            # Metin üretimi
-ollama pull nomic-embed-text     # Embedding'ler
+ollama pull gemma3:4b            # Metin üretimi modeli
+ollama pull nomic-embed-text     # Embedding modeli
 ```
 
-## Kullanim
+## Kullanım
 
-### Corpus oluşturma
+### Corpus Oluşturma
 
-Makaleleri corpus'a ekleyerek RAG bağlamı oluşturun:
+Makaleleri corpus'a ekleyerek RAG bağlamını oluşturun:
 
 ```bash
-# Yerel markdown dosyaları ekle
+# Yerel markdown dosyalarını ekle
 muharrir add makale.md diger-makale.md
 
 # Web'den Türkçe teknik makaleleri tara
 muharrir scrape https://example.com/swift-makale
 
-# Seed URL'lerden otomatik keşif
+# Seed URL'lerden otomatik keşfet
 muharrir scrape --discover
 ```
 
-### Dil denetimi
+### Dil Denetimi
 
 ```bash
 # Paragraf paragraf dil kontrolü (RAG destekli)
@@ -82,11 +74,11 @@ muharrir check makale.md --no-rag
 # Bütünsel makale incelemesi
 muharrir review makale.md
 
-# Somut kelime/ifade iyileştirme önerileri
+# Somut kelime ve ifade iyileştirme önerileri
 muharrir improve makale.md
 ```
 
-### Arama ve istatistik
+### Arama ve İstatistikler
 
 ```bash
 # Corpus'ta anlamsal arama
@@ -99,7 +91,7 @@ muharrir search "async defer" -n 10
 muharrir stats
 ```
 
-## Nasil Calisiyor?
+## Nasıl Çalışıyor?
 
 ```
 ┌─────────────┐     ┌──────────────────┐     ┌─────────────┐
@@ -113,43 +105,39 @@ muharrir stats
 └─────────────┘     └──────────────────┘
 ```
 
-1. **Corpus**: Türkçe teknik makaleler chunk'lara bölünür ve `nomic-embed-text` ile embedding'leri oluşturulur
-2. **RAG**: Kontrol edilen makaleye en benzer chunk'lar cosine similarity ile bulunur
+1. **Corpus**: Türkçe teknik makaleler parçalara (chunk) bölünür ve `nomic-embed-text` ile embedding vektörleri oluşturulur
+2. **RAG**: Denetlenen makaleye en benzer parçalar cosine similarity ile bulunur
 3. **LLM**: Referans metinlerle birlikte `gemma3:4b` modeline gönderilir ve Türkçe yazım önerileri üretilir
 
-Tüm işlem yerel makinenizde gerçekleşir — veri dışarı çıkmaz.
-
-## Teknik Detaylar
-
-| Bileşen | Teknoloji |
-|---------|-----------|
-| Dil | Swift 6.0, macOS 13+ |
-| CLI Framework | [swift-argument-parser](https://github.com/apple/swift-argument-parser) |
-| LLM İstemci | [ollama-swift](https://github.com/mattt/ollama-swift) |
-| HTML Ayrıştırma | [SwiftSoup](https://github.com/scinfu/SwiftSoup) |
-| Terminal Renkleri | [Rainbow](https://github.com/onevcat/Rainbow) |
-| Metin Modeli | `gemma3:4b` |
-| Embedding Modeli | `nomic-embed-text` |
-| Vector Store | Actor-tabanlı, cosine similarity, JSON disk |
-| Chunking | 500 karakter, 100 karakter overlap |
-| CI/CD | GitHub Actions (build + test + SwiftLint) |
-| Testler | 70 birim testi |
+Tüm işlem yerel makinenizde gerçekleşir — veri dışarıya çıkmaz.
 
 ## Komutlar
 
 | Komut | Açıklama |
 |-------|----------|
-| `muharrir add <dosyalar...>` | Yerel dosyaları corpus'a ekle |
-| `muharrir scrape [url'ler...]` | Web'den makale tara ve indeksle |
-| `muharrir check <makale>` | Paragraf paragraf dil denetimi |
-| `muharrir review <makale>` | Bütünsel makale incelemesi |
-| `muharrir improve <makale>` | RAG tabanlı iyileştirme önerileri |
-| `muharrir search <sorgu>` | Corpus'ta anlamsal arama |
-| `muharrir stats` | Corpus ve model istatistikleri |
+| `muharrir add <dosyalar...>` | Yerel dosyaları corpus'a ekler |
+| `muharrir scrape [url'ler...]` | Web'den makale tarar ve indeksler |
+| `muharrir check <makale>` | Paragraf paragraf dil denetimi yapar |
+| `muharrir review <makale>` | Bütünsel makale incelemesi yapar |
+| `muharrir improve <makale>` | RAG tabanlı iyileştirme önerileri sunar |
+| `muharrir search <sorgu>` | Corpus'ta anlamsal arama yapar |
+| `muharrir stats` | Corpus ve model istatistiklerini gösterir |
 
-## Lisans
+## Teknik Ayrıntılar
 
-MIT
+| Bileşen | Teknoloji |
+|---------|-----------|
+| Dil | Swift 6.0, macOS 13+ |
+| CLI Çatısı | [swift-argument-parser](https://github.com/apple/swift-argument-parser) |
+| LLM İstemcisi | [ollama-swift](https://github.com/mattt/ollama-swift) |
+| HTML Ayrıştırma | [SwiftSoup](https://github.com/scinfu/SwiftSoup) |
+| Terminal Renklendirme | [Rainbow](https://github.com/onevcat/Rainbow) |
+| Metin Modeli | `gemma3:4b` |
+| Embedding Modeli | `nomic-embed-text` |
+| Vektör Deposu | Actor tabanlı, cosine similarity, JSON disk |
+| Parçalama | 500 karakter, 100 karakter örtüşme |
+| Sürekli Entegrasyon | GitHub Actions (derleme + test + SwiftLint) |
+| Testler | 70 birim testi |
 
 ## Geliştirme
 
@@ -164,8 +152,12 @@ swift test
 swiftlint --strict
 ```
 
-## Katkida Bulunma
+## Katkıda Bulunma
 
-Katkılarınızı bekliyoruz! Detaylar için [CONTRIBUTING.md](CONTRIBUTING.md) rehberine bakın.
+Katkılarınızı bekliyoruz! Ayrıntılar için [CONTRIBUTING.md](CONTRIBUTING.md) rehberine göz atın.
 
-Kısaca: issue açın, fork'layın, değişiklik yapın, `swift test` ve `swiftlint --strict` ile doğrulayın, PR gönderin.
+Kısaca: bir issue açın, fork'layın, değişikliklerinizi yapın, `swift test` ve `swiftlint --strict` ile doğrulayın, PR gönderin.
+
+## Lisans
+
+[MIT](LICENSE)
