@@ -1,5 +1,5 @@
 import ArgumentParser
-import OllamaSwift
+import Ollama
 
 struct Search: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -13,7 +13,7 @@ struct Search: AsyncParsableCommand {
     var count: Int = 5
 
     func run() async throws {
-        let client = OllamaClient()
+        let client = await MainActor.run { Ollama.Client.default }
         let store = VectorStore(client: client)
         try await store.load()
 

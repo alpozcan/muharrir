@@ -1,6 +1,6 @@
 import ArgumentParser
 import Foundation
-import OllamaSwift
+import Ollama
 
 struct Review: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -14,7 +14,7 @@ struct Review: AsyncParsableCommand {
     var noRag = false
 
     func run() async throws {
-        let client = OllamaClient()
+        let client = await MainActor.run { Ollama.Client.default }
 
         guard await client.isReachable() else {
             Terminal.error("Ollama çalışmıyor. Başlat: brew services start ollama")

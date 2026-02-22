@@ -1,5 +1,5 @@
 import Foundation
-import OllamaSwift
+import Ollama
 
 enum Checker {
     /// Extract non-code paragraphs from markdown text.
@@ -32,7 +32,7 @@ enum Checker {
     static func checkWording(
         articlePath: URL,
         useRAG: Bool,
-        client: OllamaClient,
+        client: Ollama.Client,
         store: VectorStore
     ) async throws {
         let text = try String(contentsOf: articlePath, encoding: .utf8)
@@ -78,11 +78,11 @@ enum Checker {
 
             Terminal.header("Paragraflar \(i + 1)-\(i + batch.count)")
 
-            let stream = try await client.generateStream(
+            let stream = await client.generateStream(
                 model: Config.defaultModel,
                 prompt: prompt,
-                system: Prompts.wordingExpert,
-                options: ModelOptions(temperature: 0.3, topP: 0.9, numPredict: 2048)
+                options: ["temperature": 0.3, "top_p": 0.9, "num_predict": 2048],
+                system: Prompts.wordingExpert
             )
 
             for try await chunk in stream {
@@ -96,7 +96,7 @@ enum Checker {
     static func reviewArticle(
         articlePath: URL,
         useRAG: Bool,
-        client: OllamaClient,
+        client: Ollama.Client,
         store: VectorStore
     ) async throws {
         let text = try String(contentsOf: articlePath, encoding: .utf8)
@@ -126,11 +126,11 @@ enum Checker {
 
         Terminal.header("Makale İncelemesi")
 
-        let stream = try await client.generateStream(
+        let stream = await client.generateStream(
             model: Config.defaultModel,
             prompt: prompt,
-            system: Prompts.reviewer,
-            options: ModelOptions(temperature: 0.3, topP: 0.9, numPredict: 2048)
+            options: ["temperature": 0.3, "top_p": 0.9, "num_predict": 2048],
+            system: Prompts.reviewer
         )
 
         for try await chunk in stream {
@@ -142,7 +142,7 @@ enum Checker {
     /// Suggest specific wording improvements using RAG context.
     static func suggestImprovements(
         articlePath: URL,
-        client: OllamaClient,
+        client: Ollama.Client,
         store: VectorStore
     ) async throws {
         let text = try String(contentsOf: articlePath, encoding: .utf8)
@@ -172,8 +172,8 @@ enum Checker {
             let response = try await client.generate(
                 model: Config.defaultModel,
                 prompt: prompt,
-                system: Prompts.wordingExpert,
-                options: ModelOptions(temperature: 0.3, topP: 0.9, numPredict: 1024)
+                options: ["temperature": 0.3, "top_p": 0.9, "num_predict": 1024],
+                system: Prompts.wordingExpert
             )
 
             print("\n### Paragraf \(i + 1)")

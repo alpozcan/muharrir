@@ -1,4 +1,5 @@
 import Foundation
+import Ollama
 
 enum Config {
     static let dataDir: URL = FileManager.default.homeDirectoryForCurrentUser
@@ -6,8 +7,8 @@ enum Config {
     static let corpusDir: URL = dataDir.appendingPathComponent("corpus")
     static let embeddingsFile: URL = dataDir.appendingPathComponent("embeddings.json")
 
-    static let defaultModel = "gemma3:4b"
-    static let embeddingModel = "nomic-embed-text"
+    static let defaultModel: Model.ID = "gemma3:4b"
+    static let embeddingModel: Model.ID = "nomic-embed-text"
 
     static let seedURLs = [
         "https://medium.com/@andynvt/swift-programlama-dili",

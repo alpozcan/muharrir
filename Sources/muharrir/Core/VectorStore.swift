@@ -1,5 +1,5 @@
 import Foundation
-import OllamaSwift
+import Ollama
 
 /// Simple file-backed vector store using Ollama embeddings and cosine similarity.
 actor VectorStore {
@@ -12,11 +12,11 @@ actor VectorStore {
     }
 
     private var entries: [Entry] = []
-    private let client: OllamaClient
-    private let model: String
+    private let client: Ollama.Client
+    private let model: Model.ID
     private let storePath: URL
 
-    init(client: OllamaClient, model: String = Config.embeddingModel) {
+    init(client: Ollama.Client, model: Model.ID = Config.embeddingModel) {
         self.client = client
         self.model = model
         self.storePath = Config.embeddingsFile
@@ -48,9 +48,10 @@ actor VectorStore {
                 let batchEnd = min(batchStart + 10, chunks.count)
                 let batch = Array(chunks[batchStart..<batchEnd])
 
-                let response = try await client.embed(model: model, input: batch)
+                let response = try await client.embed(model: model, inputs: batch)
+                let embeddings = response.embeddings.rawValue.map { $0.map(Float.init) }
 
-                for (j, embedding) in response.embeddings.enumerated() {
+                for (j, embedding) in embeddings.enumerated() {
                     let idx = batchStart + j
                     let id = "\(article.url)::\(idx)"
 
@@ -79,7 +80,8 @@ actor VectorStore {
         guard !entries.isEmpty else { return [] }
 
         let response = try await client.embed(model: model, input: text)
-        guard let queryEmbedding = response.embeddings.first else { return [] }
+        guard let firstEmbedding = response.embeddings.rawValue.first else { return [] }
+        let queryEmbedding = firstEmbedding.map(Float.init)
 
         var scored: [(entry: Entry, similarity: Float)] = entries.map { entry in
             (entry, cosineSimilarity(queryEmbedding, entry.embedding))

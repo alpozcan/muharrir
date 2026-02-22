@@ -8,7 +8,8 @@
     <a href="https://github.com/apple/swift-package-manager"><img src="https://img.shields.io/badge/SPM-compatible-orange?style=flat-square" alt="Swift Package Manager"></a>
     <a href="https://github.com/yonaskolb/Mint"><img src="https://img.shields.io/badge/Mint-compatible-brightgreen?style=flat-square" alt="Mint"></a>
     <a href="https://github.com/alpozcan/homebrew-muharrir"><img src="https://img.shields.io/badge/Homebrew-tap-yellow?style=flat-square&logo=homebrew" alt="Homebrew"></a>
-    <a href="https://swift.org"><img src="https://img.shields.io/badge/Swift-5.9+-F05138?style=flat-square&logo=swift&logoColor=white" alt="Swift 5.9+"></a>
+    <a href="https://swift.org"><img src="https://img.shields.io/badge/Swift-6.0+-F05138?style=flat-square&logo=swift&logoColor=white" alt="Swift 6.0+"></a>
+    <a href="https://github.com/alpozcan/muharrir/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/alpozcan/muharrir/ci.yml?style=flat-square&label=CI" alt="CI"></a>
     <a href="https://github.com/alpozcan/muharrir/blob/main/LICENSE"><img src="https://img.shields.io/github/license/alpozcan/muharrir?style=flat-square" alt="License"></a>
   </p>
 </p>
@@ -118,37 +119,21 @@ muharrir stats
 
 Tüm işlem yerel makinenizde gerçekleşir — veri dışarı çıkmaz.
 
-## OllamaSwift
+## Teknik Detaylar
 
-Muharrir, Ollama REST API ile iletişim için [OllamaSwift](https://github.com/alpozcan/OllamaSwift) kütüphanesini kullanır. OllamaSwift bağımsız bir SPM paketi olarak da kullanılabilir:
-
-```swift
-// Package.swift
-.package(url: "https://github.com/alpozcan/OllamaSwift.git", from: "1.0.0")
-```
-
-```swift
-import OllamaSwift
-
-let client = OllamaClient()
-
-// Basit metin üretimi
-let response = try await client.generate(model: "gemma3:4b", prompt: "Merhaba!")
-
-// Streaming
-for try await chunk in try await client.generateStream(model: "gemma3:4b", prompt: "Merhaba!") {
-    print(chunk.response, terminator: "")
-}
-
-// Chat
-let reply = try await client.chat(model: "gemma3:4b", messages: [
-    .system("Sen yardımcı bir asistansın."),
-    .user("Swift'te defer ne işe yarar?"),
-])
-
-// Embedding
-let embedding = try await client.embed(model: "nomic-embed-text", input: "Swift concurrency")
-```
+| Bileşen | Teknoloji |
+|---------|-----------|
+| Dil | Swift 6.0, macOS 13+ |
+| CLI Framework | [swift-argument-parser](https://github.com/apple/swift-argument-parser) |
+| LLM İstemci | [ollama-swift](https://github.com/mattt/ollama-swift) |
+| HTML Ayrıştırma | [SwiftSoup](https://github.com/scinfu/SwiftSoup) |
+| Terminal Renkleri | [Rainbow](https://github.com/onevcat/Rainbow) |
+| Metin Modeli | `gemma3:4b` |
+| Embedding Modeli | `nomic-embed-text` |
+| Vector Store | Actor-tabanlı, cosine similarity, JSON disk |
+| Chunking | 500 karakter, 100 karakter overlap |
+| CI/CD | GitHub Actions (build + test + SwiftLint) |
+| Testler | 45 birim testi |
 
 ## Komutlar
 
@@ -166,6 +151,19 @@ let embedding = try await client.embed(model: "nomic-embed-text", input: "Swift 
 
 MIT
 
+## Geliştirme
+
+```bash
+# Derleme
+swift build
+
+# Testleri çalıştır
+swift test
+
+# Lint kontrolü
+swiftlint --strict
+```
+
 ## Katkida Bulunma
 
-Pull request'ler memnuniyetle karşılanır. Lütfen önce bir issue açarak değişikliği tartışın.
+Pull request'ler memnuniyetle karşılanır. Lütfen önce bir issue açarak değişikliği tartışın. CI pipeline build, test ve lint kontrollerini otomatik çalıştırır.

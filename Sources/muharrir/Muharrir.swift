@@ -1,5 +1,5 @@
 import ArgumentParser
-import OllamaSwift
+import Ollama
 
 @main
 struct Muharrir: AsyncParsableCommand {

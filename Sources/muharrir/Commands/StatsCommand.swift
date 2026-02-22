@@ -1,5 +1,5 @@
 import ArgumentParser
-import OllamaSwift
+import Ollama
 
 struct Stats: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -7,7 +7,7 @@ struct Stats: AsyncParsableCommand {
     )
 
     func run() async throws {
-        let client = OllamaClient()
+        let client = await MainActor.run { Ollama.Client.default }
         let store = VectorStore(client: client)
         try await store.load()
 

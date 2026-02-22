@@ -1,6 +1,6 @@
 import ArgumentParser
 import Foundation
-import OllamaSwift
+import Ollama
 
 struct Add: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -33,7 +33,7 @@ struct Add: AsyncParsableCommand {
 
         if !articles.isEmpty {
             Terminal.info("Embedding'ler oluşturuluyor...")
-            let client = OllamaClient()
+            let client = await MainActor.run { Ollama.Client.default }
             let store = VectorStore(client: client)
             try await store.load()
             let chunks = try await store.indexArticles(articles)
