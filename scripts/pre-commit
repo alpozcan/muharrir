@@ -1,0 +1,12 @@
+#!/bin/sh
+# Run SwiftLint in strict mode before committing
+
+if command -v swiftlint >/dev/null 2>&1; then
+    swiftlint --strict --quiet
+    if [ $? -ne 0 ]; then
+        echo "SwiftLint violations found. Fix them before committing."
+        exit 1
+    fi
+else
+    echo "warning: SwiftLint not installed, skipping lint check"
+fi

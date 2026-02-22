@@ -133,7 +133,7 @@ Tüm işlem yerel makinenizde gerçekleşir — veri dışarı çıkmaz.
 | Vector Store | Actor-tabanlı, cosine similarity, JSON disk |
 | Chunking | 500 karakter, 100 karakter overlap |
 | CI/CD | GitHub Actions (build + test + SwiftLint) |
-| Testler | 45 birim testi |
+| Testler | 70 birim testi |
 
 ## Komutlar
 
@@ -166,4 +166,6 @@ swiftlint --strict
 
 ## Katkida Bulunma
 
-Pull request'ler memnuniyetle karşılanır. Lütfen önce bir issue açarak değişikliği tartışın. CI pipeline build, test ve lint kontrollerini otomatik çalıştırır.
+Katkılarınızı bekliyoruz! Detaylar için [CONTRIBUTING.md](CONTRIBUTING.md) rehberine bakın.
+
+Kısaca: issue açın, fork'layın, değişiklik yapın, `swift test` ve `swiftlint --strict` ile doğrulayın, PR gönderin.
