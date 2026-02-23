@@ -1,5 +1,6 @@
 import Foundation
 import Ollama
+import OSLog
 
 enum Config {
     static let dataDir: URL = FileManager.default.homeDirectoryForCurrentUser
@@ -9,6 +10,18 @@ enum Config {
 
     static let defaultModel: Model.ID = "gemma3:4b"
     static let embeddingModel: Model.ID = "nomic-embed-text"
+
+    private static let ollamaHost = URL(string: "http://localhost:11434")
+        ?? URL(fileURLWithPath: "/")
+
+    @MainActor static let ollamaClient: Ollama.Client = {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 300
+        let session = URLSession(configuration: config)
+        Logger.ollama.info("Creating Ollama client (timeout: 300s)")
+        Lifecycle.ensureOllama()
+        return Ollama.Client(session: session, host: ollamaHost)
+    }()
 
     static let seedURLs = [
         "https://medium.com/@andynvt/swift-programlama-dili",

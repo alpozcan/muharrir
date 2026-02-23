@@ -1,10 +1,13 @@
 import Foundation
+import OSLog
 import SwiftSoup
 
 enum Scraper {
     /// Fetch a URL and extract clean text content.
     static func fetchArticle(url: String) async throws -> Article? {
         guard let requestURL = URL(string: url) else { return nil }
+
+        Logger.scraper.info("Fetching \(url)")
 
         var request = URLRequest(url: requestURL)
         request.setValue(
@@ -17,8 +20,12 @@ enum Scraper {
         guard let httpResponse = response as? HTTPURLResponse,
               (200...299).contains(httpResponse.statusCode),
               let html = String(data: data, encoding: .utf8) else {
+            let status = (response as? HTTPURLResponse)?.statusCode ?? -1
+            Logger.scraper.error("Fetch failed for \(url): HTTP \(status)")
             return nil
         }
+
+        Logger.scraper.debug("HTTP \(httpResponse.statusCode) for \(url)")
 
         let doc = try SwiftSoup.parse(html)
 
@@ -46,8 +53,12 @@ enum Scraper {
             .filter { !$0.isEmpty }
             .joined(separator: "\n\n")
 
-        guard text.count >= 200 else { return nil }
+        guard text.count >= 200 else {
+            Logger.scraper.debug("Skipped \(url): text too short (\(text.count) chars)")
+            return nil
+        }
 
+        Logger.scraper.info("Fetched \(url): \(text.count) chars")
         return Article(
             url: url,
             title: title,
@@ -100,11 +111,12 @@ enum Scraper {
     /// Cache an article to disk as JSON.
     static func cacheArticle(_ article: Article) throws {
         try Config.ensureDirectories()
-        let hash = article.url.data(using: .utf8)!
+        let hash = Data(article.url.utf8)
             .map { String(format: "%02x", $0) }.joined().prefix(16)
         let cachePath = Config.corpusDir.appendingPathComponent("\(hash).json")
         let data = try JSONEncoder().encode(article)
         try data.write(to: cachePath)
+        Logger.scraper.debug("Cached article to \(cachePath.lastPathComponent)")
     }
 
     /// Load all cached articles from disk.
