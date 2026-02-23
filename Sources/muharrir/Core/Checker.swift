@@ -1,7 +1,39 @@
 import Foundation
 import Ollama
+import OSLog
 
 enum Checker {
+    /// Stream a generate response with spinner, returning elapsed time.
+    private static func streamWithSpinner(
+        client: Ollama.Client,
+        prompt: String,
+        system: String,
+        maxTokens: Int = 1024,
+        spinner: Spinner
+    ) async throws -> Duration {
+        let clock = ContinuousClock()
+        spinner.start()
+
+        let start = clock.now
+        let stream = await client.generateStream(
+            model: Config.defaultModel,
+            prompt: prompt,
+            options: ["temperature": 0.3, "top_p": 0.9, "num_predict": .init(integerLiteral: maxTokens)],
+            system: system,
+            keepAlive: .minutes(30)
+        )
+
+        let printer = StreamPrinter()
+        var firstChunk = true
+        for try await chunk in stream {
+            if firstChunk { spinner.stop(); firstChunk = false }
+            printer.write(chunk.response)
+        }
+        if firstChunk { spinner.stop() }
+        printer.finish()
+
+        return clock.now - start
+    }
     /// Extract non-code paragraphs from markdown text.
     static func extractParagraphs(from text: String) -> [String] {
         var paragraphs: [String] = []
@@ -25,6 +57,7 @@ enum Checker {
             }
         }
 
+        Logger.checker.debug("Extracted \(paragraphs.count) paragraphs")
         return paragraphs
     }
 
@@ -35,6 +68,9 @@ enum Checker {
         client: Ollama.Client,
         store: VectorStore
     ) async throws {
+        let clock = ContinuousClock()
+        let commandStart = clock.now
+
         let text = try String(contentsOf: articlePath, encoding: .utf8)
         let mainText = text.components(separatedBy: "=========== FINAL SHARED TEXT").first ?? text
         let paragraphs = extractParagraphs(from: mainText)
@@ -45,6 +81,7 @@ enum Checker {
         }
 
         Terminal.info("\(paragraphs.count) paragraf kontrol edilecek\n")
+        Terminal.sizeWarning(charCount: mainText.count, paragraphCount: paragraphs.count)
 
         // Get RAG context
         var ragContext = ""
@@ -61,8 +98,11 @@ enum Checker {
 
         // Process in batches of 5
         let batchSize = 5
+        let totalBatches = (paragraphs.count + batchSize - 1) / batchSize
+
         for i in stride(from: 0, to: paragraphs.count, by: batchSize) {
             let batch = Array(paragraphs[i..<min(i + batchSize, paragraphs.count)])
+            let batchIndex = i / batchSize + 1
             let batchText = batch.enumerated()
                 .map { "[\(i + $0.offset + 1)] \($0.element)" }
                 .joined(separator: "\n\n")
@@ -76,20 +116,28 @@ enum Checker {
             Her paragraf için önerini ver. Paragraf zaten iyiyse "OK" yaz.
             """
 
-            Terminal.header("Paragraflar \(i + 1)-\(i + batch.count)")
+            Logger.checker.debug("Batch \(batchIndex): \(batch.count) paragraphs, prompt size \(prompt.count) chars")
 
-            let stream = await client.generateStream(
-                model: Config.defaultModel,
-                prompt: prompt,
-                options: ["temperature": 0.3, "top_p": 0.9, "num_predict": 2048],
-                system: Prompts.wordingExpert
+            Terminal.progress(
+                current: batchIndex, total: totalBatches,
+                label: "Paragraflar \(i + 1)-\(i + batch.count)"
             )
 
-            for try await chunk in stream {
-                print(chunk.response, terminator: "")
-            }
+            let spinner = Spinner(
+                label: "Paragraflar \(i + 1)-\(i + batch.count)",
+                contexts: batch
+            )
+            let streamElapsed = try await streamWithSpinner(
+                client: client, prompt: prompt,
+                system: Prompts.wordingExpert, spinner: spinner
+            )
             print("\n")
+
+            Logger.checker.info("Batch \(batchIndex) streamed in \(streamElapsed)")
         }
+
+        let totalElapsed = clock.now - commandStart
+        Logger.checker.info("checkWording completed in \(totalElapsed)")
     }
 
     /// Holistic review of an entire article.
@@ -99,8 +147,16 @@ enum Checker {
         client: Ollama.Client,
         store: VectorStore
     ) async throws {
+        let clock = ContinuousClock()
+        let commandStart = clock.now
+
         let text = try String(contentsOf: articlePath, encoding: .utf8)
         var mainText = text.components(separatedBy: "=========== FINAL SHARED TEXT").first ?? text
+        let paragraphs = extractParagraphs(from: mainText)
+
+        if mainText.count > 5000 {
+            Terminal.sizeWarning(charCount: mainText.count, paragraphCount: paragraphs.count)
+        }
 
         if mainText.count > 8000 {
             mainText = String(mainText.prefix(8000)) + "\n\n[... makale kısaltıldı ...]"
@@ -124,19 +180,24 @@ enum Checker {
         \(ragContext)
         """
 
-        Terminal.header("Makale İncelemesi")
+        Logger.checker.debug("Review prompt size: \(prompt.count) chars")
 
-        let stream = await client.generateStream(
-            model: Config.defaultModel,
-            prompt: prompt,
-            options: ["temperature": 0.3, "top_p": 0.9, "num_predict": 2048],
-            system: Prompts.reviewer
+        Terminal.progress(current: 1, total: 1, label: "Makale inceleniyor")
+
+        let spinner = Spinner(
+            label: "Makale İncelemesi",
+            context: paragraphs.first ?? ""
         )
-
-        for try await chunk in stream {
-            print(chunk.response, terminator: "")
-        }
+        let streamElapsed = try await streamWithSpinner(
+            client: client, prompt: prompt,
+            system: Prompts.reviewer, spinner: spinner
+        )
         print()
+
+        Logger.checker.info("reviewArticle stream completed in \(streamElapsed)")
+
+        let totalElapsed = clock.now - commandStart
+        Logger.checker.info("reviewArticle completed in \(totalElapsed)")
     }
 
     /// Suggest specific wording improvements using RAG context.
@@ -145,11 +206,18 @@ enum Checker {
         client: Ollama.Client,
         store: VectorStore
     ) async throws {
+        let clock = ContinuousClock()
+        let commandStart = clock.now
+
         let text = try String(contentsOf: articlePath, encoding: .utf8)
         let mainText = text.components(separatedBy: "=========== FINAL SHARED TEXT").first ?? text
         let paragraphs = extractParagraphs(from: mainText)
+        let toProcess = Array(paragraphs.prefix(10))
+        let total = toProcess.count
 
-        for (i, para) in paragraphs.prefix(10).enumerated() {
+        Terminal.sizeWarning(charCount: mainText.count, paragraphCount: paragraphs.count)
+
+        for (i, para) in toProcess.enumerated() {
             let matches = try await store.query(para, nResults: 2)
             guard !matches.isEmpty else { continue }
 
@@ -167,18 +235,22 @@ enum Checker {
             Yalnızca somut kelime/ifade değişikliği öner. Genel yorum yapma.
             """
 
-            Terminal.dim("Paragraf \(i + 1)...")
+            Terminal.progress(current: i + 1, total: total, label: "Paragraf \(i + 1)")
 
-            let response = try await client.generate(
-                model: Config.defaultModel,
-                prompt: prompt,
-                options: ["temperature": 0.3, "top_p": 0.9, "num_predict": 1024],
-                system: Prompts.wordingExpert
+            let spinner = Spinner(
+                label: "Paragraf \(i + 1)/\(total)",
+                context: para
             )
-
-            print("\n### Paragraf \(i + 1)")
-            print(response.response)
+            let streamElapsed = try await streamWithSpinner(
+                client: client, prompt: prompt,
+                system: Prompts.wordingExpert, maxTokens: 512, spinner: spinner
+            )
             print()
+
+            Logger.checker.info("Paragraph \(i + 1) improvement streamed in \(streamElapsed)")
         }
+
+        let totalElapsed = clock.now - commandStart
+        Logger.checker.info("suggestImprovements completed in \(totalElapsed)")
     }
 }
