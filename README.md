@@ -98,19 +98,71 @@ muharrir search "async defer" -n 10
 muharrir stats
 ```
 
-## Nasıl Çalışıyor?
+## Sistem Mimarisi
 
 ```
-┌─────────────┐     ┌──────────────────┐     ┌─────────────┐
-│  Makaleler  │────▶│  Embedding Model │────▶│ Vector Store│
-│  (.md)      │     │ (nomic-embed)    │     │ (JSON disk) │
-└─────────────┘     └──────────────────┘     └──────┬──────┘
-                                                    │
-┌─────────────┐     ┌──────────────────┐            │ RAG
-│   Analiz    │ ◀───│    LLM Model     │◀───────────┘
-│   Çıktısı   │     │  (gemma3:4b)     │
-└─────────────┘     └──────────────────┘
+┌──────────────────────────────────────────────────────────────────────┐
+│                        CLI Katmanı (Sunum)                           │
+│                                                                      │
+│  check ∙ review ∙ improve ∙ search ∙ add ∙ scrape ∙ stats           │
+│  ── swift-argument-parser ile AsyncParsableCommand ──                │
+└──────────────────────────┬───────────────────────────────────────────┘
+                           │
+           ┌───────────────┼───────────────┐
+           ▼               ▼               ▼
+┌─────────────────┐ ┌────────────┐ ┌──────────────────┐
+│   İçerik Girdi  │ │  Denetim   │ │  RAG Boru Hattı  │
+│                 │ │  Motoru    │ │                  │
+│ Scraper         │ │            │ │ VectorStore      │
+│ ├ URL fetch     │ │ Checker    │ │ ├ Parçalama      │
+│ ├ HTML parse    │ │ ├ Paragraf │ │ │ (500k/100k)    │
+│ │ (SwiftSoup)   │ │ │ çıkarma  │ │ ├ Embedding      │
+│ └ Makale cache  │ │ ├ RAG bağ- │ │ │ (nomic-embed)  │
+│                 │ │ │ lam inşa │ │ ├ SIMD cosine    │
+│ Add (yerel .md) │ │ └ LLM akış │ │ │ (Accelerate)   │
+│                 │ │   çıktısı  │ │ └ JSON disk      │
+└────────┬────────┘ └─────┬──────┘ └────────┬─────────┘
+         │                │                  │
+         │                │    Benzer        │
+         │   Makale       │    Parçalar      │
+         │   Metni        │  ◀───────────────┘
+         │                │
+         └───────────┐    │
+                     ▼    ▼
+          ┌──────────────────────────┐
+          │      Ollama (Yerel)      │
+          │                          │
+          │  gemma3:4b    nomic-     │
+          │  (üretim)    embed-text  │
+          │              (embedding) │
+          │                          │
+          │  Lifecycle: brew svc     │
+          │  start/stop + sinyal     │
+          └──────────────────────────┘
+                     │
+                     ▼
+          ┌──────────────────────────┐
+          │    Terminal Çıktısı      │
+          │                          │
+          │  Spinner animasyonu      │
+          │  İlerleme çubuğu        │
+          │  Renkli çıktı (Rainbow) │
+          │  OSLog yapısal log       │
+          └──────────────────────────┘
 ```
+
+### Katman Açıklamaları
+
+| Katman | Açıklama |
+|--------|----------|
+| **CLI** | 7 alt komut sunan giriş noktası; argüman ayrıştırma ve iş akışı yönetimi |
+| **İçerik Girdi** | Web'den (SwiftSoup ile HTML parse) ve yerel dosyalardan makale toplama, `~/.muharrir/corpus/` altında JSON önbellek |
+| **Denetim Motoru** | Markdown'dan paragraf çıkarma, RAG bağlamı oluşturma, LLM'e akış (streaming) sorguları gönderme |
+| **RAG Boru Hattı** | Actor tabanlı VectorStore: metin parçalama → embedding üretimi → SIMD hızlandırmalı cosine similarity arama |
+| **Ollama** | Yerel LLM sunucusu; Lifecycle bileşeni Homebrew servisleri ile otomatik başlatma/durdurma ve sinyal yönetimi sağlar |
+| **Terminal Çıktısı** | Braille spinner, kelime kelime açılma efekti, ilerleme çubuğu, renkli biçimlendirme ve yapısal loglama |
+
+### Veri Akışı
 
 1. **Corpus**: Türkçe teknik makaleler parçalara (chunk) bölünür ve `nomic-embed-text` ile embedding vektörleri oluşturulur
 2. **RAG**: Denetlenen makaleye en benzer parçalar cosine similarity ile bulunur
