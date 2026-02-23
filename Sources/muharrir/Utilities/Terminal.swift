@@ -78,6 +78,7 @@ final class Spinner: @unchecked Sendable {
     private var snippetIndex = 0
     private var scrollOffset = 0
     private var tickCount = 0
+    private var doneSinceTick: Int?
     private var timer: DispatchSourceTimer?
     private var running = false
 
@@ -148,32 +149,33 @@ final class Spinner: @unchecked Sendable {
 
     /// Reveal words progressively, fitting within maxWidth.
     /// Returns the visible portion and whether the snippet is fully revealed.
-    private func wordReveal(_ text: String, wordCount: Int, maxWidth: Int) -> (text: String, done: Bool) {
+    static func wordReveal(_ text: String, wordCount: Int, maxWidth: Int) -> (text: String, done: Bool) {
         guard maxWidth > 0 else { return ("", true) }
         let words = text.split(separator: " ")
         guard !words.isEmpty else { return ("", true) }
 
         let visibleCount = min(wordCount, words.count)
         var result = ""
+        var wordsShown = 0
         for word in words.prefix(visibleCount) {
             let candidate = result.isEmpty ? String(word) : "\(result) \(word)"
             if candidate.count > maxWidth {
-                // Truncate last word to fit
-                let remaining = maxWidth - result.count - 1
-                if remaining > 2, result.isEmpty {
-                    return (String(word.prefix(remaining - 1)) + "…", false)
+                // Truncate first word if it alone exceeds maxWidth
+                if result.isEmpty {
+                    return (String(word.prefix(maxWidth - 1)) + "…", false)
                 }
                 break
             }
             result = candidate
+            wordsShown += 1
         }
 
-        let fullyRevealed = visibleCount >= words.count && result.count <= maxWidth
+        let fullyRevealed = wordsShown >= words.count
         return (result, fullyRevealed)
     }
 
     /// Apply fade edges: dim the first and last few characters.
-    private func fadeEdges(_ text: String, edgeWidth: Int = 3) -> String {
+    static func fadeEdges(_ text: String, edgeWidth: Int = 3) -> String {
         guard text.count > edgeWidth * 2 else { return "\u{1B}[2m\(text)\u{1B}[22m" }
         let chars = Array(text)
         let head = String(chars.prefix(edgeWidth))
@@ -188,13 +190,12 @@ final class Spinner: @unchecked Sendable {
         let msg = messages[messageIndex % messages.count]
         let fullSnip = snippets.isEmpty ? "" : snippets[snippetIndex % snippets.count]
         let wordCount = scrollOffset
+        let currentTick = tickCount
         frameIndex += 1
         tickCount += 1
         // Reveal one word every 3 ticks (~300ms per word)
         if tickCount % 3 == 0 { scrollOffset += 1 }
-        if tickCount % 100 == 0 { // rotate message every ~10s
-            messageIndex += 1
-        }
+        if tickCount % 100 == 0 { messageIndex += 1 }
         lock.unlock()
 
         let maxWidth = Self.terminalWidth - 1
@@ -206,18 +207,23 @@ final class Spinner: @unchecked Sendable {
         var snipText = ""
         if !fullSnip.isEmpty {
             let available = maxWidth - prefix.count - 3 // 3 = " · "
-            let (revealed, done) = wordReveal(fullSnip, wordCount: wordCount, maxWidth: available)
+            let (revealed, done) = Self.wordReveal(fullSnip, wordCount: wordCount, maxWidth: available)
             snipText = revealed
 
+            lock.lock()
             if done {
-                // All words revealed — advance to next snippet after a pause
-                lock.lock()
-                if tickCount % 3 == 0 {
-                    if !snippets.isEmpty { snippetIndex += 1 }
-                    scrollOffset = 1
+                // Record when snippet was first fully revealed
+                if doneSinceTick == nil { doneSinceTick = currentTick }
+                // Hold for 15 ticks (~1.5s), then advance
+                if currentTick - (doneSinceTick ?? currentTick) > 15, snippets.count > 1 {
+                    snippetIndex += 1
+                    scrollOffset = 0
+                    doneSinceTick = nil
                 }
-                lock.unlock()
+            } else {
+                doneSinceTick = nil
             }
+            lock.unlock()
         }
 
         var line = prefix
@@ -241,7 +247,7 @@ final class Spinner: @unchecked Sendable {
             )
         }
         if !snippet.isEmpty, let range = styled.range(of: snippet, options: .backwards) {
-            let faded = fadeEdges(String(styled[range]))
+            let faded = Self.fadeEdges(String(styled[range]))
             styled = styled.replacingCharacters(in: range, with: faded)
         }
         return styled

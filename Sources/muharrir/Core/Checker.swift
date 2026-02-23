@@ -186,7 +186,7 @@ enum Checker {
 
         let spinner = Spinner(
             label: "Makale İncelemesi",
-            context: paragraphs.first ?? ""
+            contexts: paragraphs
         )
         let streamElapsed = try await streamWithSpinner(
             client: client, prompt: prompt,
