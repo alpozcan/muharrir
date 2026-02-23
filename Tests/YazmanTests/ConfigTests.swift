@@ -1,11 +1,11 @@
 import XCTest
-@testable import muharrir
+@testable import yazman
 
 final class ConfigTests: XCTestCase {
 
     func testDataDirPath() {
         let expected = FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent(".muharrir")
+            .appendingPathComponent(".yazman")
         XCTAssertEqual(Config.dataDir, expected)
     }
 
@@ -38,7 +38,7 @@ final class ConfigTests: XCTestCase {
     }
 
     func testEnsureDirectoriesCreatesDirectories() throws {
-        // This test creates real directories in ~/.muharrir
+        // This test creates real directories in ~/.yazman
         // They should already exist or be safe to create
         try Config.ensureDirectories()
         let fm = FileManager.default

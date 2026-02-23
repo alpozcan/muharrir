@@ -1,5 +1,5 @@
 import XCTest
-@testable import muharrir
+@testable import yazman
 
 final class ParagraphExtractionTests: XCTestCase {
 

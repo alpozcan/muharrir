@@ -116,7 +116,7 @@ final class Spinner: @unchecked Sendable {
 
         FileHandle.standardError.write(Data("\u{1B}[?25l".utf8))
 
-        let queue = DispatchQueue(label: "dev.muharrir.spinner")
+        let queue = DispatchQueue(label: "dev.yazman.spinner")
         let t = DispatchSource.makeTimerSource(queue: queue)
         t.schedule(deadline: .now(), repeating: .milliseconds(100))
         t.setEventHandler { [weak self] in self?.tick() }

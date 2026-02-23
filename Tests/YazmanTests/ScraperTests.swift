@@ -1,5 +1,5 @@
 import XCTest
-@testable import muharrir
+@testable import yazman
 
 final class ScraperTests: XCTestCase {
 
@@ -8,7 +8,7 @@ final class ScraperTests: XCTestCase {
     override func setUp() {
         super.setUp()
         tempDir = FileManager.default.temporaryDirectory
-            .appendingPathComponent("MuharrirTests-\(UUID().uuidString)")
+            .appendingPathComponent("YazmanTests-\(UUID().uuidString)")
         try? FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
     }
 

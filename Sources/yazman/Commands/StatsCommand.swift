@@ -17,7 +17,7 @@ struct Stats: AsyncParsableCommand {
         let isReachable = await client.isReachable()
         let chunkCount = await store.count
 
-        Terminal.header("Muharrir İstatistikleri")
+        Terminal.header("Yazman İstatistikleri")
         print("  Veri dizini:     \(Config.dataDir.path)")
         print("  Corpus dizini:   \(Config.corpusDir.path)")
         print("  Embedding dosya: \(Config.embeddingsFile.path)")

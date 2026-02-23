@@ -11,7 +11,7 @@ enum Scraper {
 
         var request = URLRequest(url: requestURL)
         request.setValue(
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Muharrir/1.0",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Yazman/1.0",
             forHTTPHeaderField: "User-Agent"
         )
         request.timeoutInterval = 30
@@ -74,7 +74,7 @@ enum Scraper {
 
         var request = URLRequest(url: requestURL)
         request.setValue(
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Muharrir/1.0",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Yazman/1.0",
             forHTTPHeaderField: "User-Agent"
         )
 

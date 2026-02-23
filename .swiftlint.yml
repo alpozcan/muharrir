@@ -1,4 +1,4 @@
-# SwiftLint configuration for Muharrir
+# SwiftLint configuration for Yazman
 
 disabled_rules:
   - trailing_comma

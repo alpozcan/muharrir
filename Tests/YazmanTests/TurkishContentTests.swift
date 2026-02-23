@@ -1,5 +1,5 @@
 import XCTest
-@testable import muharrir
+@testable import yazman
 
 /// Tests using realistic Turkish technical article content to verify
 /// paragraph extraction and text chunking handle Turkish correctly.

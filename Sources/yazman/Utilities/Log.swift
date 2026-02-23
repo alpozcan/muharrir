@@ -1,7 +1,7 @@
 import OSLog
 
 extension Logger {
-    private static let subsystem = "dev.muharrir.cli"
+    private static let subsystem = "dev.yazman.cli"
 
     static let general = Logger(subsystem: subsystem, category: "general")
     static let ollama = Logger(subsystem: subsystem, category: "ollama")

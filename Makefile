@@ -9,13 +9,13 @@ release:
 	swift build -c release
 
 install: build
-	cp .build/debug/muharrir $(PREFIX)/bin/muharrir
+	cp .build/debug/yazman $(PREFIX)/bin/yazman
 
 install-release: release
-	cp .build/release/muharrir $(PREFIX)/bin/muharrir
+	cp .build/release/yazman $(PREFIX)/bin/yazman
 
 uninstall:
-	rm -f $(PREFIX)/bin/muharrir
+	rm -f $(PREFIX)/bin/yazman
 
 clean:
 	swift package clean
@@ -27,7 +27,7 @@ lint:
 	swiftlint lint --strict
 
 run:
-	swift run muharrir
+	swift run yazman
 
 log:
-	log stream --predicate 'subsystem == "dev.muharrir.cli"' --level debug
+	log stream --predicate 'subsystem == "dev.yazman.cli"' --level debug

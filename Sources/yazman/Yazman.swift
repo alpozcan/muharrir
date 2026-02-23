@@ -2,9 +2,9 @@ import ArgumentParser
 import Ollama
 
 @main
-struct Muharrir: AsyncParsableCommand {
+struct Yazman: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
-        commandName: "muharrir",
+        commandName: "yazman",
         abstract: "Türkçe teknik makale yazım denetleyicisi — yerel LLM + RAG ile.",
         version: "1.0.0",
         subcommands: [

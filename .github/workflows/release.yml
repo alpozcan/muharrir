@@ -22,15 +22,15 @@ jobs:
 
       - name: Package binary
         run: |
-          BINARY_PATH=$(swift build -c release --show-bin-path)/muharrir
-          cp "$BINARY_PATH" muharrir
-          tar czf muharrir-macos-arm64.tar.gz muharrir
-          shasum -a 256 muharrir-macos-arm64.tar.gz > checksums.txt
+          BINARY_PATH=$(swift build -c release --show-bin-path)/yazman
+          cp "$BINARY_PATH" yazman
+          tar czf yazman-macos-arm64.tar.gz yazman
+          shasum -a 256 yazman-macos-arm64.tar.gz > checksums.txt
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            muharrir-macos-arm64.tar.gz
+            yazman-macos-arm64.tar.gz
             checksums.txt
           generate_release_notes: true

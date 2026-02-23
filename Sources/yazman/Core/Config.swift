@@ -4,7 +4,7 @@ import OSLog
 
 enum Config {
     static let dataDir: URL = FileManager.default.homeDirectoryForCurrentUser
-        .appendingPathComponent(".muharrir")
+        .appendingPathComponent(".yazman")
     static let corpusDir: URL = dataDir.appendingPathComponent("corpus")
     static let embeddingsFile: URL = dataDir.appendingPathComponent("embeddings.json")
 

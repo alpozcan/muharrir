@@ -1,49 +1,49 @@
 <p align="center">
-  <h1 align="center">Muharrir</h1>
+  <h1 align="center">Yazman</h1>
   <p align="center">
     <em>Türkçe teknik makale yazım denetleyicisi — yerel LLM + RAG ile.</em>
   </p>
   <p align="center">
-    <a href="https://github.com/alpozcan/muharrir/releases" target="_blank"><img src="https://img.shields.io/github/v/release/alpozcan/muharrir?style=flat-square&label=s%C3%BCr%C3%BCm" alt="Sürüm"></a>
-    <a href="https://github.com/alpozcan/muharrir/blob/main/Package.swift" target="_blank"><img src="https://img.shields.io/badge/SPM-uyumlu-orange?style=flat-square" alt="Swift Package Manager"></a>
-    <a href="https://github.com/alpozcan/muharrir/blob/main/Package.swift" target="_blank"><img src="https://img.shields.io/badge/Mint-uyumlu-brightgreen?style=flat-square" alt="Mint"></a>
-    <a href="https://github.com/alpozcan/homebrew-muharrir/blob/main/Formula/muharrir.rb" target="_blank"><img src="https://img.shields.io/badge/Homebrew-tap-FBB040?style=flat-square&logo=homebrew&logoColor=white" alt="Homebrew"></a>
+    <a href="https://github.com/alpozcan/yazman/releases" target="_blank"><img src="https://img.shields.io/github/v/release/alpozcan/yazman?style=flat-square&label=s%C3%BCr%C3%BCm" alt="Sürüm"></a>
+    <a href="https://github.com/alpozcan/yazman/blob/main/Package.swift" target="_blank"><img src="https://img.shields.io/badge/SPM-uyumlu-orange?style=flat-square" alt="Swift Package Manager"></a>
+    <a href="https://github.com/alpozcan/yazman/blob/main/Package.swift" target="_blank"><img src="https://img.shields.io/badge/Mint-uyumlu-brightgreen?style=flat-square" alt="Mint"></a>
+    <a href="https://github.com/alpozcan/homebrew-yazman/blob/main/Formula/yazman.rb" target="_blank"><img src="https://img.shields.io/badge/Homebrew-tap-FBB040?style=flat-square&logo=homebrew&logoColor=white" alt="Homebrew"></a>
     <a href="https://swift.org" target="_blank"><img src="https://img.shields.io/badge/Swift-6.0+-F05138?style=flat-square&logo=swift&logoColor=white" alt="Swift 6.0+"></a>
-    <a href="https://github.com/alpozcan/muharrir/actions/workflows/ci.yml" target="_blank"><img src="https://img.shields.io/github/actions/workflow/status/alpozcan/muharrir/ci.yml?style=flat-square&label=CI" alt="CI"></a>
-    <a href="https://github.com/alpozcan/muharrir/blob/main/LICENSE" target="_blank"><img src="https://img.shields.io/badge/lisans-MIT-97ca00?style=flat-square" alt="Lisans"></a>
+    <a href="https://github.com/alpozcan/yazman/actions/workflows/ci.yml" target="_blank"><img src="https://img.shields.io/github/actions/workflow/status/alpozcan/yazman/ci.yml?style=flat-square&label=CI" alt="CI"></a>
+    <a href="https://github.com/alpozcan/yazman/blob/main/LICENSE" target="_blank"><img src="https://img.shields.io/badge/lisans-MIT-97ca00?style=flat-square" alt="Lisans"></a>
   </p>
 </p>
 
 ---
 
-Muharrir, Türkçe teknik makalelerin dilini ve ifade biçimini yerel bir LLM ([Ollama](https://ollama.ai)) ve RAG (Retrieval-Augmented Generation) kullanarak denetler, iyileştirme önerileri sunar. Tüm verileriniz makinenizde kalır; dışarıya hiçbir veri çıkmaz.
+Yazman, Türkçe teknik makalelerin dilini ve ifade biçimini yerel bir LLM ([Ollama](https://ollama.ai)) ve RAG (Retrieval-Augmented Generation) kullanarak denetler, iyileştirme önerileri sunar. Tüm verileriniz makinenizde kalır; dışarıya hiçbir veri çıkmaz.
 
 ## Kurulum
 
 ### Homebrew
 
 ```bash
-brew install alpozcan/muharrir/muharrir
+brew install alpozcan/yazman/yazman
 ```
 
 ### Mint
 
 ```bash
-mint install alpozcan/muharrir
+mint install alpozcan/yazman
 ```
 
 ### Kaynaktan Derleme (Swift Package Manager)
 
 ```bash
-git clone https://github.com/alpozcan/muharrir.git
-cd muharrir
+git clone https://github.com/alpozcan/yazman.git
+cd yazman
 swift build -c release
-cp .build/release/muharrir /usr/local/bin/
+cp .build/release/yazman /usr/local/bin/
 ```
 
 ### Gereksinimler
 
-Muharrir'in çalışması için [Ollama](https://ollama.ai)'nın yerel olarak kurulu ve çalışır durumda olması gerekir:
+Yazman'in çalışması için [Ollama](https://ollama.ai)'nın yerel olarak kurulu ve çalışır durumda olması gerekir:
 
 ```bash
 brew install ollama
@@ -60,42 +60,42 @@ Makaleleri corpus'a ekleyerek RAG bağlamını oluşturun:
 
 ```bash
 # Yerel markdown dosyalarını ekle
-muharrir add makale.md diger-makale.md
+yazman add makale.md diger-makale.md
 
 # Web'den Türkçe teknik makaleleri tara
-muharrir scrape https://example.com/swift-makale
+yazman scrape https://example.com/swift-makale
 
 # Seed URL'lerden otomatik keşfet
-muharrir scrape --discover
+yazman scrape --discover
 ```
 
 ### Dil Denetimi
 
 ```bash
 # Paragraf paragraf dil kontrolü (RAG destekli)
-muharrir check makale.md
+yazman check makale.md
 
 # RAG olmadan kontrol
-muharrir check makale.md --no-rag
+yazman check makale.md --no-rag
 
 # Bütünsel makale incelemesi
-muharrir review makale.md
+yazman review makale.md
 
 # Somut kelime ve ifade iyileştirme önerileri
-muharrir improve makale.md
+yazman improve makale.md
 ```
 
 ### Arama ve İstatistikler
 
 ```bash
 # Corpus'ta anlamsal arama
-muharrir search "Swift macro kullanımı"
+yazman search "Swift macro kullanımı"
 
 # Sonuç sayısını belirle
-muharrir search "async defer" -n 10
+yazman search "async defer" -n 10
 
 # Corpus ve model istatistikleri
-muharrir stats
+yazman stats
 ```
 
 ## Sistem Mimarisi
@@ -156,7 +156,7 @@ muharrir stats
 | Katman | Açıklama |
 |--------|----------|
 | **CLI** | 7 alt komut sunan giriş noktası; argüman ayrıştırma ve iş akışı yönetimi |
-| **İçerik Girdi** | Web'den (SwiftSoup ile HTML parse) ve yerel dosyalardan makale toplama, `~/.muharrir/corpus/` altında JSON önbellek |
+| **İçerik Girdi** | Web'den (SwiftSoup ile HTML parse) ve yerel dosyalardan makale toplama, `~/.yazman/corpus/` altında JSON önbellek |
 | **Denetim Motoru** | Markdown'dan paragraf çıkarma, RAG bağlamı oluşturma, LLM'e akış (streaming) sorguları gönderme |
 | **RAG Boru Hattı** | Actor tabanlı VectorStore: metin parçalama → embedding üretimi → SIMD hızlandırmalı cosine similarity arama |
 | **Ollama** | Yerel LLM sunucusu; Lifecycle bileşeni Homebrew servisleri ile otomatik başlatma/durdurma ve sinyal yönetimi sağlar |
@@ -174,13 +174,13 @@ Tüm işlem yerel makinenizde gerçekleşir — veri dışarıya çıkmaz.
 
 | Komut | Açıklama |
 |-------|----------|
-| `muharrir add <dosyalar...>` | Yerel dosyaları corpus'a ekler |
-| `muharrir scrape [url'ler...]` | Web'den makale tarar ve indeksler |
-| `muharrir check <makale>` | Paragraf paragraf dil denetimi yapar |
-| `muharrir review <makale>` | Bütünsel makale incelemesi yapar |
-| `muharrir improve <makale>` | RAG tabanlı iyileştirme önerileri sunar |
-| `muharrir search <sorgu>` | Corpus'ta anlamsal arama yapar |
-| `muharrir stats` | Corpus ve model istatistiklerini gösterir |
+| `yazman add <dosyalar...>` | Yerel dosyaları corpus'a ekler |
+| `yazman scrape [url'ler...]` | Web'den makale tarar ve indeksler |
+| `yazman check <makale>` | Paragraf paragraf dil denetimi yapar |
+| `yazman review <makale>` | Bütünsel makale incelemesi yapar |
+| `yazman improve <makale>` | RAG tabanlı iyileştirme önerileri sunar |
+| `yazman search <sorgu>` | Corpus'ta anlamsal arama yapar |
+| `yazman stats` | Corpus ve model istatistiklerini gösterir |
 
 ## Teknik Ayrıntılar
 

@@ -31,7 +31,7 @@ struct Search: AsyncParsableCommand {
 
         let storeCount = await store.count
         guard storeCount > 0 else {
-            Terminal.warning("Corpus boş. Önce 'muharrir scrape' veya 'muharrir add' çalıştırın.")
+            Terminal.warning("Corpus boş. Önce 'yazman scrape' veya 'yazman add' çalıştırın.")
             return
         }
 

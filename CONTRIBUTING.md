@@ -1,6 +1,6 @@
-# Contributing to Muharrir
+# Contributing to Yazman
 
-Muharrir'e katkıda bulunmak istediğiniz için teşekkürler! Bu rehber, katkı sürecini kolaylaştırmak için hazırlanmıştır.
+Yazman'e katkıda bulunmak istediğiniz için teşekkürler! Bu rehber, katkı sürecini kolaylaştırmak için hazırlanmıştır.
 
 ## Geliştirme Ortamı
 
@@ -14,8 +14,8 @@ Muharrir'e katkıda bulunmak istediğiniz için teşekkürler! Bu rehber, katkı
 ### Kurulum
 
 ```bash
-git clone https://github.com/alpozcan/muharrir.git
-cd muharrir
+git clone https://github.com/alpozcan/yazman.git
+cd yazman
 swift build
 swift test
 ```
@@ -51,8 +51,8 @@ Bu hook, her commit öncesinde `swiftlint --strict` çalıştırır.
 ## Proje Yapısı
 
 ```
-Sources/muharrir/
-├── Muharrir.swift          # Ana giriş noktası ve komut tanımı
+Sources/yazman/
+├── Yazman.swift          # Ana giriş noktası ve komut tanımı
 ├── Commands/               # CLI alt komutları (check, review, improve, ...)
 └── Core/
     ├── Checker.swift       # Paragraf çıkarma ve LLM denetim mantığı
@@ -63,7 +63,7 @@ Sources/muharrir/
     ├── Terminal.swift      # Terminal çıktı formatlama
     └── VectorStore.swift   # Embedding tabanlı vektör deposu
 
-Tests/MuharrirTests/        # Birim testleri
+Tests/YazmanTests/        # Birim testleri
 ```
 
 ## Katkı Alanları

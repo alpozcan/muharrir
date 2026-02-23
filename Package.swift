@@ -3,7 +3,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "Muharrir",
+    name: "Yazman",
     platforms: [.macOS(.v13)],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.5.0"),
@@ -13,7 +13,7 @@ let package = Package(
     ],
     targets: [
         .executableTarget(
-            name: "muharrir",
+            name: "yazman",
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "SwiftSoup", package: "SwiftSoup"),
@@ -22,8 +22,8 @@ let package = Package(
             ]
         ),
         .testTarget(
-            name: "MuharrirTests",
-            dependencies: ["muharrir"]
+            name: "YazmanTests",
+            dependencies: ["yazman"]
         ),
     ]
 )
